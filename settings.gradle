@@ -1,0 +1,4 @@
+include ':TestJavac'
+include ':javacSrc'
+//include ':TestSource'
+rootProject.name = "JavaCproject"
