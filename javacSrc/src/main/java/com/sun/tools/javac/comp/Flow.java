@@ -209,21 +209,32 @@ public class Flow {
     /**
      * 开始通过源文件得到的树
      * 进行数据流的分析，主要分为4步骤
-     * @param env
-     * @param make
+     * 语义分析
      */
     public void analyzeTree(Env<AttrContext> env, TreeMaker make) {
+
+        //编译测试
+//        if(env.tree instanceof JCClassDecl){
+//            JCClassDecl tree = (JCClassDecl) env.tree;
+//            if(tree.name.equals("MyClass")){
+//                CLogUtils.log("Test");
+//            }
+//        }
+
+
         //判断变量赋值和没有赋值的区分,用来处理一些特殊的变量，或者不符合规则的变量
         new AliveAnalyzer().analyzeTree(env, make);
         //断言的处理
         new AssignAnalyzer().analyzeTree(env);
-        //对方法逻辑进行判断
+        //对方法逻辑进行判断，包括异常的处理和使用规范
         new FlowAnalyzer().analyzeTree(env, make);
-        //异常
+        //解析错误的时候进行的修复
         new CaptureAnalyzer().analyzeTree(env, make);
 
-
     }
+
+
+
 
     public void analyzeLambda(Env<AttrContext> env, JCLambda that, TreeMaker make, boolean speculative) {
         Log.DiagnosticHandler diagHandler = null;
@@ -426,7 +437,8 @@ public class Flow {
      */
     class AliveAnalyzer extends BaseAnalyzer<BaseAnalyzer.PendingExit> {
 
-        /** A flag that indicates whether the last statement could
+        /**
+         *  A flag that indicates whether the last statement could
          *  complete normally.
          */
         private boolean alive;
@@ -440,7 +452,8 @@ public class Flow {
      * Visitor methods for statements and definitions
      *************************************************************************/
 
-        /** Analyze a definition.
+        /**
+         * Analyze a definition.
          */
         void scanDef(JCTree tree) {
             scanStat(tree);
@@ -450,7 +463,8 @@ public class Flow {
             }
         }
 
-        /** Analyze a statement. Check that statement is reachable.
+        /**
+         * Analyze a statement. Check that statement is reachable.
          */
         void scanStat(JCTree tree) {
             if (!alive && tree != null) {
@@ -460,12 +474,15 @@ public class Flow {
             scan(tree);
         }
 
-        /** Analyze list of statements.
+        /**
+         * 处理声明的类
+         * Analyze list of statements.
          */
         void scanStats(List<? extends JCStatement> trees) {
             if (trees != null)
-                for (List<? extends JCStatement> l = trees; l.nonEmpty(); l = l.tail)
+                for (List<? extends JCStatement> l = trees; l.nonEmpty(); l = l.tail) {
                     scanStat(l.head);
+                }
         }
 
         /* ------------ Visitor methods for various sorts of trees -------------*/
@@ -870,9 +887,7 @@ public class Flow {
         public void visitClassDef(JCClassDecl tree) {
             if (tree.sym == null) return;
 
-            if(tree.name.contentEquals("MyClass")){
-                CLogUtils.log("Test");
-            }
+
             JCClassDecl classDefPrev = classDef;
             List<Type> thrownPrev = thrown;
             List<Type> caughtPrev = caught;

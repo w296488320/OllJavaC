@@ -1443,6 +1443,7 @@ public class JavaCompiler {
                 TreeMaker localMake = make.forToplevel(env.toplevel);
                 //构建解析工具，核心方法之一，主要包括异常，代码合并
                 flow.analyzeTree(env, localMake);
+
                 compileStates.put(env, CompileState.FLOW);
 
                 if (shouldStop(CompileState.FLOW))
