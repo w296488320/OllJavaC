@@ -27,7 +27,7 @@ import com.android.tools.r8.utils.structural.StructuralItem;
 import com.android.tools.r8.utils.structural.StructuralMapping;
 import com.android.tools.r8.utils.structural.StructuralSpecification;
 import com.google.common.base.Strings;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 
 // DexCode corresponds to code item in dalvik/dex-format.html
 public class DexCode extends Code implements StructuralItem<DexCode> {
@@ -63,7 +65,7 @@ public class DexCode extends Code implements StructuralItem<DexCode> {
         .withItemArray(c -> c.instructions);
   }
 
-  public DexCode(
+  public  DexCode(
       int registerSize,
       int insSize,
       int outsSize,
@@ -153,7 +155,7 @@ public class DexCode extends Code implements StructuralItem<DexCode> {
       largestPrefix = Integer.max(largestPrefix, getLargestPrefix(factory, parameter));
     }
     for (DexDebugEvent event : debugInfo.events) {
-      if (event instanceof DexDebugEvent.StartLocal) {
+      if (event instanceof StartLocal) {
         DexString name = ((StartLocal) event).name;
         largestPrefix = Integer.max(largestPrefix, getLargestPrefix(factory, name));
       }
@@ -522,13 +524,14 @@ public class DexCode extends Code implements StructuralItem<DexCode> {
   }
 
 
+
+
   public static class TryHandler extends DexItem implements StructuralItem<TryHandler> {
-	  
+
     public static final int NO_HANDLER = -1;
 
     public final TypeAddrPair[] pairs;
-    //offset
-    public final int catchAllAddr;
+    public final /* offset */ int catchAllAddr;
 
     private static void specify(StructuralSpecification<TryHandler, ?> spec) {
       spec.withInt(h -> h.catchAllAddr).withItemArray(h -> h.pairs);
@@ -543,6 +546,7 @@ public class DexCode extends Code implements StructuralItem<DexCode> {
     public TryHandler self() {
       return this;
     }
+
 
     @Override
     public StructuralMapping<TryHandler> getStructuralMapping() {
@@ -590,14 +594,14 @@ public class DexCode extends Code implements StructuralItem<DexCode> {
       builder.append("     ]");
       return builder.toString();
     }
+
     public static class TypeAddrPair extends DexItem implements StructuralItem<TypeAddrPair> {
 
       private final DexType type;
-      /* offset */
-      public final  int addr;
+      public  final /* offset */ int addr;
 
       private static void specify(StructuralSpecification<TypeAddrPair, ?> spec) {
-        spec.withItem( p -> p.type).withInt(p -> p.addr);
+        spec.withItem(p -> p.type).withInt(p -> p.addr);
       }
 
       public TypeAddrPair(DexType type, int addr) {
